@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { use } from 'react';
-import { Nav } from '@/components/Nav';
+import { SiteHeader } from '@/components/SiteHeader';
+import { Footer } from '@/components/Footer';
 import { VideoThumb } from '@/components/VideoThumb';
 import { VideoCard } from '@/components/VideoCard';
 import { CommentSection } from '@/components/CommentSection';
@@ -40,7 +41,6 @@ export default function WatchPage({ params }: PageProps) {
     });
   }, [id, userId]);
 
-  // Related videos (all others)
   useEffect(() => {
     const unsub = subscribeToVideos(vs => {
       setRelated(vs.filter(v => v.id !== id).slice(0, 4));
@@ -48,7 +48,6 @@ export default function WatchPage({ params }: PageProps) {
     return unsub;
   }, [id]);
 
-  // Count view once per session
   useEffect(() => {
     if (video && !viewCounted.current) {
       viewCounted.current = true;
@@ -73,8 +72,9 @@ export default function WatchPage({ params }: PageProps) {
   if (loading) {
     return (
       <>
-        <Nav />
+        <SiteHeader />
         <div style={{ textAlign: 'center', padding: '120px 32px', color: 'var(--sub)' }}>Loading…</div>
+        <Footer />
       </>
     );
   }
@@ -82,26 +82,28 @@ export default function WatchPage({ params }: PageProps) {
   if (!video) {
     return (
       <>
-        <Nav />
+        <SiteHeader />
         <div style={{ textAlign: 'center', padding: '120px 32px' }}>
           <p style={{ color: 'var(--sub)', marginBottom: 16 }}>Video not found.</p>
           <Link href="/" className="btn btn-primary">← Back to channel</Link>
         </div>
+        <Footer />
       </>
     );
   }
 
   return (
     <>
-      <Nav />
+      <SiteHeader />
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px 80px' }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 24px 56px' }}>
         {/* Back link */}
         <Link href="/" style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
-          fontSize: 12, fontWeight: 600, color: 'var(--sub)',
+          fontSize: 13, fontWeight: 600, color: 'var(--sub)',
           textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.07em',
           marginBottom: 24, transition: 'color 0.15s',
+          minHeight: 44, padding: '10px 0',
         }}
         onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
         onMouseLeave={e => (e.currentTarget.style.color = 'var(--sub)')}
@@ -113,15 +115,14 @@ export default function WatchPage({ params }: PageProps) {
         <div style={{
           width: '100%', borderRadius: 12,
           overflow: 'hidden', border: '1px solid var(--border)',
-          marginBottom: 24,
-          background: '#000',
+          marginBottom: 24, background: '#000',
         }}>
           {video.storageUrl ? (
             <video
               controls
               playsInline
               preload="metadata"
-              style={{ width: '100%', display: 'block', maxHeight: '60vh' }}
+              style={{ width: '100%', display: 'block', maxHeight: '55vh' }}
               src={video.storageUrl}
             />
           ) : (
@@ -148,7 +149,7 @@ export default function WatchPage({ params }: PageProps) {
               {video.views} views · {video.game}
               {video.duration && ` · ${video.duration}`}
             </span>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={handleLike}
                 className="btn"
@@ -156,12 +157,14 @@ export default function WatchPage({ params }: PageProps) {
                   background: liked ? 'var(--accent)' : 'transparent',
                   border: `1px solid ${liked ? 'var(--accent)' : 'var(--border)'}`,
                   color: liked ? '#fff' : 'var(--text)',
-                  padding: '8px 16px',
+                  padding: '10px 18px', minHeight: 44,
                 }}
               >
                 {liked ? '❤️' : '♡'} {likeCount}
               </button>
-              <button onClick={copyLink} className="btn btn-outline">⎋ Share</button>
+              <button onClick={copyLink} className="btn btn-outline" style={{ minHeight: 44, padding: '10px 18px' }}>
+                ↗ Share
+              </button>
             </div>
           </div>
 
@@ -183,7 +186,7 @@ export default function WatchPage({ params }: PageProps) {
         {related.length > 0 && (
           <div style={{ marginTop: 48 }}>
             <h2 className="section-label" style={{ marginBottom: 16 }}>More videos</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
               {related.map(v => (
                 <VideoCard key={v.id} video={v} compact />
               ))}
@@ -192,6 +195,7 @@ export default function WatchPage({ params }: PageProps) {
         )}
       </div>
 
+      <Footer />
       <Toast message={toast} />
     </>
   );
