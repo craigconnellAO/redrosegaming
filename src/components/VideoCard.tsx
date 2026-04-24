@@ -75,7 +75,7 @@ export function VideoCard({ video, compact, onShare }: VideoCardProps) {
               )}
             </span>
 
-            <div style={{ display: 'flex', gap: 2 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
               <button className="icon-btn" onClick={handleLike} title="Like" aria-label="Like">
                 <span style={{
                   fontSize: 16,
@@ -85,8 +85,8 @@ export function VideoCard({ video, compact, onShare }: VideoCardProps) {
                   {liked ? '❤️' : '♡'}
                 </span>
               </button>
-              <button className="icon-btn" onClick={handleShare} title="Share" aria-label="Copy link">
-                ⎋
+              <button className="icon-btn" onClick={handleShare} title="Copy link" aria-label="Copy link">
+                ↗
               </button>
             </div>
           </div>

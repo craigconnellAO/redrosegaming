@@ -4,6 +4,7 @@
 /* ── DESIGN TOKENS ──────────────────────────────────────── */
 :root {
   --bg:           #FEFBF7;
+  --bg-raw:       254, 251, 247;
   --card:         #FFFFFF;
   --border:       #EDE4DA;
   --text:         #231D18;
@@ -23,6 +24,18 @@
   --radius-md:  6px;
   --radius-lg:  10px;
   --radius-xl:  16px;
+}
+
+/* ── DARK MODE ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:           #0D0A08;
+  --bg-raw:       13, 10, 8;
+  --card:         #1A1512;
+  --border:       #2E2520;
+  --text:         #F5EEE8;
+  --sub:          #7A6E68;
+  --accent-light: rgba(192, 72, 106, 0.15);
+  --accent-ring:  rgba(192, 72, 106, 0.28);
 }
 
 /* ── BASE ───────────────────────────────────────────────── */
@@ -121,8 +134,8 @@ button { -webkit-tap-highlight-color: transparent; cursor: pointer; }
 
 /* Icon button */
 .icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
   border: none;
   background: transparent;
