@@ -165,4 +165,4 @@ src/
 
 ---
 
-*Built with love for Rose 🌹*
+*Built with love for Gracie 🌹*
