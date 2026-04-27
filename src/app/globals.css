@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=Fredoka:wght@500;600;700&family=Press+Start+2P&family=Bangers&family=Caveat:wght@500;700&family=Pacifico&display=swap');
 @import "tailwindcss";
 
 /* ── DESIGN TOKENS ──────────────────────────────────────── */
@@ -187,3 +187,109 @@ textarea.input { resize: vertical; min-height: 88px; }
 .thumb-99n   { background: linear-gradient(135deg, #6EE7B7, #059669); }
 .thumb-other { background: linear-gradient(135deg, #7DD3FC, #2563EB); }
 .thumb-chat  { background: linear-gradient(135deg, #FDE68A, #F59E0B); }
+
+/* ── STUDIO (Phase 2) ───────────────────────────────────── */
+
+/* Kid-friendly font families (loaded above) */
+.font-fredoka  { font-family: 'Fredoka', sans-serif; font-weight: 600; }
+.font-press    { font-family: 'Press Start 2P', monospace; }
+.font-bangers  { font-family: 'Bangers', cursive; letter-spacing: 0.04em; }
+.font-caveat   { font-family: 'Caveat', cursive; font-weight: 700; }
+.font-pacifico { font-family: 'Pacifico', cursive; }
+
+/* Visually-hidden — for screen-reader-only ARIA live regions */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Big record button used by the studio */
+.record-btn {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  border: 4px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease);
+  box-shadow: 0 6px 22px rgba(192,72,106,0.35);
+}
+.record-btn:hover:not(:disabled) { transform: scale(1.04); }
+.record-btn:active:not(:disabled){ transform: scale(0.98); }
+.record-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.record-btn[data-state="recording"] {
+  background: #fff;
+  animation: rec-pulse 1.2s infinite var(--ease);
+}
+@keyframes rec-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192,72,106,0.55); }
+  50%       { box-shadow: 0 0 0 14px rgba(192,72,106,0); }
+}
+
+/* 8-colour swatch */
+.color-swatch {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s var(--ease), border-color 0.15s;
+}
+.color-swatch[aria-checked="true"],
+.color-swatch[aria-pressed="true"] {
+  border-color: var(--text);
+  transform: scale(1.12);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+/* Range slider (used in timeline) */
+.studio-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+.studio-range::-webkit-slider-runnable-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+}
+.studio-range::-moz-range-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+}
+.studio-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  margin-top: -8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+.studio-range::-moz-range-thumb {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

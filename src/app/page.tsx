@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { SiteHeader } from '@/components/SiteHeader';
 import { Footer } from '@/components/Footer';
 import { StarscapeHero } from '@/components/StarscapeHero';
@@ -13,6 +14,7 @@ import type { Video, GameTag } from '@/lib/types';
 const FILTERS: (GameTag | 'All')[] = ['All', 'Dress to Impress', 'Brookhaven', '99 Nights', 'Just Chatting', 'Other Roblox'];
 
 export default function ChannelPage() {
+  const router = useRouter();
   const [videos, setVideos] = useState<Video[]>([]);
   const [filter, setFilter] = useState<GameTag | 'All'>('All');
   const [showUpload, setShowUpload] = useState(false);
@@ -115,7 +117,10 @@ export default function ChannelPage() {
       {showUpload && (
         <UploadModal
           onClose={() => setShowUpload(false)}
-          onSuccess={showToast}
+          onSuccess={(msg, videoId) => {
+            showToast(`${msg} Opening Studio…`);
+            setTimeout(() => router.push(`/studio/${videoId}`), 600);
+          }}
         />
       )}
 

@@ -96,6 +96,12 @@ export function SiteHeader({ videoCount = 0, totalViews = 0, onUpload }: SiteHea
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
 
+        {isAdmin && (
+          <Link href="/record" className="btn btn-outline" style={{ textDecoration: 'none' }}>
+            🎥 Record
+          </Link>
+        )}
+
         {isAdmin && onUpload && (
           <button className="btn btn-primary" onClick={onUpload}>
             + Upload

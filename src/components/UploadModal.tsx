@@ -7,14 +7,15 @@ import { GAME_TAGS, type GameTag } from '@/lib/types';
 
 interface UploadModalProps {
   onClose: () => void;
-  onSuccess: (message: string) => void;
+  onSuccess: (message: string, videoId: string) => void;
+  initialFile?: File;
 }
 
 type Step = 0 | 1 | 2;
 
-export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
-  const [step, setStep] = useState<Step>(0);
-  const [file, setFile] = useState<File | null>(null);
+export function UploadModal({ onClose, onSuccess, initialFile }: UploadModalProps) {
+  const [step, setStep] = useState<Step>(initialFile ? 1 : 0);
+  const [file, setFile] = useState<File | null>(initialFile ?? null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [game, setGame] = useState<GameTag>('Dress to Impress');
@@ -39,7 +40,7 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
         setProgress(percent);
       });
 
-      await addVideo({
+      const newVideoId = await addVideo({
         title:      title.trim(),
         description: description.trim(),
         game,
@@ -47,7 +48,7 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
         duration:   '', // Could extract from file metadata in future
       });
 
-      onSuccess('Video uploaded! Share the link with family 🌹');
+      onSuccess('Video uploaded! Share the link with family 🌹', newVideoId);
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -160,7 +161,7 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 56, marginBottom: 16 }}>🚀</div>
           <p style={{ fontWeight: 600, fontSize: 17, color: 'var(--text)', marginBottom: 6 }}>
-            "{title || 'My video'}"
+            &ldquo;{title || 'My video'}&rdquo;
           </p>
           <p style={{ fontSize: 12, color: 'var(--sub)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
             {game}
