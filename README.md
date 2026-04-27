@@ -6,12 +6,23 @@ A private family video-sharing platform for Rose — a young Roblox creator. Thi
 
 ## What it does
 
+### Phase 1: Channel & Playback
 - **Channel homepage** — Rose's profile, video grid, filterable by game
 - **Video player** — native HTML5 playback with likes and comments
 - **Real-time comments** — family can leave comments and emoji reactions without needing an account
 - **Private upload flow** — multi-step wizard optimised for iPad, with resumable upload for large video files
 - **Admin login** — Rose (or a parent) signs in to upload and manage videos
 - **Private by design** — no public search, no discovery. Videos are only accessible via direct link
+
+### Phase 2: Recording Studio ✨ **NEW**
+- **Post-upload studio** — After uploading a video, Rose can add voice/face-cam commentary and text overlays
+- **Canvas compositing** — Renders source video + circular webcam PiP + text overlays in real-time at 24fps
+- **Draggable webcam bubble** — Adjust position and size of her face-cam; mirror option for reversed view
+- **Kid-friendly text overlays** — 5 playful fonts (Fredoka, Press Start 2P, Bangers, Caveat, Pacifico) + 8-color picker
+- **Keyboard-friendly recording** — Space = record/stop, K = play/pause, R = restart, arrow keys = scrub timeline
+- **Punch-in markers** — DAW-style recording markers to jump between commentary segments
+- **Memory-optimized** — Works smoothly on iPad; periodic chunk draining prevents memory exhaustion during long recordings
+- **One-click export** — Preview composite, edit metadata, upload to Firebase, share `/watch/[id]` link
 
 ---
 
@@ -25,7 +36,7 @@ A private family video-sharing platform for Rose — a young Roblox creator. Thi
 | Auth | Firebase Authentication (email/password) |
 | Database | Firebase Firestore (real-time) |
 | Video storage | Firebase Storage (resumable upload) |
-| Fonts | DM Serif Display + Inter (Google Fonts) |
+| Fonts | DM Serif Display, Inter, Fredoka, Press Start 2P, Bangers, Caveat, Pacifico (Google Fonts) |
 
 ---
 
@@ -46,6 +57,8 @@ The UI follows a **Contemporary Refined + Sparkle** direction — warm cream pal
 | `/` | Channel home — profile, filter tabs, video grid |
 | `/watch/[id]` | Video player, description, likes, comments |
 | `/login` | Admin sign in |
+| `/record` | 3-phase record flow: record from webcam → trim → publish |
+| `/studio/[id]` | Post-upload studio — add voice/face-cam commentary, text overlays, webcam PiP |
 
 ---
 
@@ -141,27 +154,81 @@ Open [http://localhost:3000](http://localhost:3000).
 ```
 src/
   app/
-    page.tsx              # Channel home
-    watch/[id]/page.tsx   # Video player
-    login/page.tsx        # Admin login
-    globals.css           # Design tokens + animations
-    layout.tsx            # Root layout + AuthProvider
+    page.tsx                # Channel home
+    watch/[id]/page.tsx     # Video player
+    login/page.tsx          # Admin login
+    record/page.tsx         # 3-phase record flow
+    studio/[id]/page.tsx    # Post-upload recording studio
+    globals.css             # Design tokens + animations
+    layout.tsx              # Root layout + AuthProvider + ThemeProvider
   components/
-    AuthProvider.tsx      # Firebase auth context
-    Nav.tsx               # Sticky navigation
-    VideoCard.tsx         # Card in the grid
-    VideoThumb.tsx        # Coloured game thumbnail
-    CommentSection.tsx    # Real-time comments + reactions
-    UploadModal.tsx       # 3-step upload wizard
-    Toast.tsx             # Toast notifications
+    AuthProvider.tsx        # Firebase auth context
+    ThemeProvider.tsx       # Theme toggle (light/dark)
+    SiteHeader.tsx          # Sticky navigation (compact on scroll)
+    StarscapeHero.tsx       # Canvas 2D animated starfield
+    VideoCard.tsx           # Card in the grid
+    VideoThumb.tsx          # Coloured game thumbnail + hover-to-play
+    CommentSection.tsx      # Real-time comments + reactions
+    UploadModal.tsx         # 3-step upload wizard
+    VideoRecorder.tsx       # Webcam record to blob
+    VideoTrimmer.tsx        # Drag-slider trim start/end
+    Toast.tsx               # Toast notifications
+    studio/
+      CanvasCompositor.tsx  # Canvas 24fps compositor (source + webcam + overlays)
+      WebcamBubble.tsx      # Draggable circular webcam PiP
+      TextOverlayEditor.tsx # Kid-friendly text overlay creator
+      RecordingTimeline.tsx # Scrubber + DAW-style punch-in markers
+      RecordingControls.tsx # Space/K/R keyboard shortcuts + ARIA live regions
+      ExportModal.tsx       # Preview + metadata editor + upload/share
   lib/
-    types.ts              # Shared TypeScript types
+    types.ts                # Shared TypeScript types (Video, Comment, GameTag, Reaction)
+    studio.ts               # Studio constants and type definitions
     firebase/
-      config.ts           # Firebase initialisation
-      videos.ts           # Video CRUD + real-time subscription
-      comments.ts         # Comment CRUD + real-time subscription
-      storage.ts          # Resumable video upload
+      config.ts             # Firebase initialisation + getApps() guard
+      videos.ts             # Video CRUD + real-time subscription
+      comments.ts           # Comment CRUD + real-time subscription
+      storage.ts            # Resumable video upload with progress callback
 ```
+
+---
+
+## Changelog
+
+### Phase 2: Recording Studio (April 2026)
+**Features:**
+- Post-upload recording studio (`/studio/[id]`) for adding voice and face-cam commentary
+- Canvas-based compositing at 24fps: source video + circular webcam PiP + text overlays
+- Draggable, resizable webcam bubble with mirror option
+- 5 kid-friendly fonts for text overlays: Fredoka, Press Start 2P, Bangers, Caveat, Pacifico
+- 8-color text overlay picker
+- Keyboard-friendly: Space (record/stop), K (play/pause), R (restart), arrow keys (timeline scrub)
+- DAW-style punch-in markers for recording commentary segments
+- Memory-optimized: periodic chunk draining prevents iPad exhaustion during long recordings
+- One-click export: preview, edit metadata, upload to Firebase, share watch link
+
+**Bug Fixes:**
+- Fixed CORS blocking canvas compositing by configuring Firebase Storage `Access-Control-Allow-Origin` headers
+- Fixed 6-second recording cutoff by implementing periodic `recorder.requestData()` (2000ms interval)
+- Fixed blank canvas on first playback by ensuring video metadata is loaded before drawing
+
+**Improvements:**
+- Consolidated console logging; removed 14+ redundant `console.log` statements
+- Simplified canvas tick function: streamlined readyState checks and interval throttling
+- Enhanced video error handling with decoded error codes and detailed diagnostics
+- Refactored event listeners (10 → 5 essential, removed redundant capacity checks)
+
+### Phase 1: Channel & Playback (March 2026)
+**Features:**
+- Private channel homepage with Rose's profile and filterable video grid (by Roblox game)
+- Native HTML5 video player with real-time likes and comments
+- Emoji reactions and comment threading (no account required)
+- 3-step upload wizard optimized for iPad with resumable upload for large files
+- Admin authentication (email/password via Firebase)
+- Dark mode with theme toggle
+- Animated starscape hero with canvas-based 2D animation
+- Hover-to-play video thumbnails with game-specific gradient backgrounds
+- Compact sticky header that shrinks on scroll (84px → 60px)
+- WCAG 2.5.5 accessibility: all touch targets ≥ 44px
 
 ---
 
