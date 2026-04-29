@@ -129,7 +129,7 @@ export function VideoCard({ video, compact, onShare, onArchive, onDelete }: Vide
                   </button>
                   {showMenu && (
                     <div style={{
-                      position: 'absolute', right: 0, top: '100%', marginTop: 4,
+                      position: 'absolute', right: 0, bottom: '100%', marginBottom: 4,
                       background: 'var(--card)', border: '1px solid var(--border)',
                       borderRadius: 8, minWidth: 160, zIndex: 50,
                       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',

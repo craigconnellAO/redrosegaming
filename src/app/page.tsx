@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { SiteHeader } from '@/components/SiteHeader';
 import { Footer } from '@/components/Footer';
-import { StarscapeHero } from '@/components/StarscapeHero';
 import { VideoCard } from '@/components/VideoCard';
 import { UploadModal } from '@/components/UploadModal';
 import { Toast } from '@/components/Toast';
@@ -57,7 +56,7 @@ export default function ChannelPage() {
         onUpload={() => setShowUpload(true)}
       />
 
-      <StarscapeHero height={300} />
+      <section style={{ height: 300 }} />
 
       {/* Filter tabs */}
       <div style={{
