@@ -56,7 +56,7 @@ export default function ChannelPage() {
         onUpload={() => setShowUpload(true)}
       />
 
-      <section style={{ height: 20 }} />
+      <section style={{ height: 0 }} />
 
       {/* Filter tabs */}
       <div style={{
