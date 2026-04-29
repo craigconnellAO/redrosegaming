@@ -42,7 +42,7 @@ export default function ChannelPage() {
   };
 
   const copyLink = (id: string) => {
-    navigator.clipboard?.writeText(`${window.location.origin}/watch/${id}`).catch(() => {});
+    navigator.clipboard?.writeText(`${window.location.origin}/watch/${id}`).catch(() => { });
     showToast('Link copied — share it with family 🌹');
   };
 
@@ -56,7 +56,7 @@ export default function ChannelPage() {
         onUpload={() => setShowUpload(true)}
       />
 
-      <section style={{ height: 300 }} />
+      <section style={{ height: 20 }} />
 
       {/* Filter tabs */}
       <div style={{
