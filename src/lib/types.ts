@@ -17,6 +17,7 @@ export interface Video {
   likes: number;
   likedBy: string[];
   createdAt: Date;
+  archived?: boolean;
 }
 
 export interface Comment {

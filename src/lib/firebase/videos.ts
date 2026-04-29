@@ -1,10 +1,11 @@
 import {
   collection, doc, getDoc, getDocs, addDoc,
-  updateDoc, increment, arrayUnion, arrayRemove,
+  updateDoc, increment, arrayUnion, arrayRemove, deleteDoc,
   query, orderBy, onSnapshot, Timestamp,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { db } from './config';
+import { ref, deleteObject } from 'firebase/storage';
+import { db, storage } from './config';
 import type { Video, GameTag } from '@/lib/types';
 
 const COL = 'videos';
@@ -62,4 +63,22 @@ export async function toggleLike(id: string, userId: string, isLiked: boolean): 
     likes:   increment(isLiked ? -1 : 1),
     likedBy: isLiked ? arrayRemove(userId) : arrayUnion(userId),
   });
+}
+
+export async function archiveVideo(id: string): Promise<void> {
+  await updateDoc(doc(db, COL, id), { archived: true });
+}
+
+export async function unarchiveVideo(id: string): Promise<void> {
+  await updateDoc(doc(db, COL, id), { archived: false });
+}
+
+export async function deleteVideo(id: string, storageUrl: string): Promise<void> {
+  try {
+    const storageRef = ref(storage, storageUrl);
+    await deleteObject(storageRef);
+  } catch (e) {
+    console.warn('Failed to delete storage file:', e);
+  }
+  await deleteDoc(doc(db, COL, id));
 }

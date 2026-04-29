@@ -30,7 +30,10 @@ export default function ChannelPage() {
   }, []);
 
   const filtered = useMemo(
-    () => filter === 'All' ? videos : videos.filter(v => v.game === filter),
+    () => {
+      const notArchived = videos.filter(v => !v.archived);
+      return filter === 'All' ? notArchived : notArchived.filter(v => v.game === filter);
+    },
     [videos, filter],
   );
 
