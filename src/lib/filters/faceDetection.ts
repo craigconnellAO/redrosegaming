@@ -1,7 +1,14 @@
 import { FaceDetection } from './types';
 
 let trackerLoaded = false;
-let tracker: any = null;
+let tracker: Tracker | null = null;
+
+interface Tracker {
+  track: (video: HTMLVideoElement[]) => Array<{ x: number; y: number; width: number; height: number }>;
+  setInitialScale: (scale: number) => void;
+  setStepSize: (size: number) => void;
+  setEdgesDensity: (density: number) => void;
+}
 
 export async function loadFaceModels() {
   if (trackerLoaded) return;
@@ -32,7 +39,8 @@ export async function loadFaceModels() {
       throw new Error('tracking.js failed to load');
     }
 
-    tracker = new window.tracking.ObjectTracker('face');
+    const trackingLib = (window as unknown as { tracking: { ObjectTracker: new (type: string) => Tracker } }).tracking;
+    tracker = new trackingLib.ObjectTracker('face');
     tracker.setInitialScale(4);
     tracker.setStepSize(2);
     tracker.setEdgesDensity(0.1);
@@ -86,8 +94,3 @@ export async function detectFace(videoElement: HTMLVideoElement): Promise<FaceDe
   }
 }
 
-declare global {
-  interface Window {
-    tracking: any;
-  }
-}
