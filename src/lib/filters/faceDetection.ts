@@ -19,7 +19,7 @@ export async function loadFaceModels() {
   try {
     // Load the tracking library
     const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.9.3/tracking.min.js';
+    script.src = 'https://cdn.jsdelivr.net/npm/tracking@1.9.3/dist/tracking.min.js';
     script.async = true;
 
     await new Promise<void>((resolve, reject) => {

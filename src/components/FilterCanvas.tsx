@@ -10,7 +10,7 @@ interface FilterCanvasProps {
 }
 
 export const FilterCanvas = forwardRef<HTMLCanvasElement, FilterCanvasProps>(
-  function FilterCanvas({ videoElement, filter }, ref) {
+  function FilterCanvas({ videoRef, filter }, ref) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationRef = useRef<number | null>(null);
     const [modelsReady, setModelsReady] = useState(false);
