@@ -5,7 +5,7 @@ import { Filter } from '@/lib/filters/types';
 import { detectFace, loadFaceModels } from '@/lib/filters/faceDetection';
 
 interface FilterCanvasProps {
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
   filter: Filter | null;
 }
 
