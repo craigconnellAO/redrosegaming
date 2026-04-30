@@ -19,7 +19,7 @@ interface PageProps {
 
 export default function WatchPage({ params }: PageProps) {
   const { id } = use(params);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const userId = user?.uid ?? 'guest';
 
   const [video, setVideo] = useState<Video | null>(null);
@@ -149,7 +149,7 @@ export default function WatchPage({ params }: PageProps) {
               {video.views} views · {video.game}
               {video.duration && ` · ${video.duration}`}
             </span>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <button
                 onClick={handleLike}
                 className="btn"
@@ -165,6 +165,11 @@ export default function WatchPage({ params }: PageProps) {
               <button onClick={copyLink} className="btn btn-outline" style={{ minHeight: 44, padding: '10px 18px' }}>
                 ↗ Share
               </button>
+              {isAdmin && (
+                <Link href={`/studio/${video.id}`} className="btn btn-primary" style={{ minHeight: 44, padding: '10px 18px', textDecoration: 'none' }}>
+                  ✎ Edit in Studio
+                </Link>
+              )}
             </div>
           </div>
 

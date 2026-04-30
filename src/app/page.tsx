@@ -29,7 +29,10 @@ export default function ChannelPage() {
   }, []);
 
   const filtered = useMemo(
-    () => filter === 'All' ? videos : videos.filter(v => v.game === filter),
+    () => {
+      const notArchived = videos.filter(v => !v.archived);
+      return filter === 'All' ? notArchived : notArchived.filter(v => v.game === filter);
+    },
     [videos, filter],
   );
 
@@ -39,7 +42,7 @@ export default function ChannelPage() {
   };
 
   const copyLink = (id: string) => {
-    navigator.clipboard?.writeText(`${window.location.origin}/watch/${id}`).catch(() => {});
+    navigator.clipboard?.writeText(`${window.location.origin}/watch/${id}`).catch(() => { });
     showToast('Link copied — share it with family 🌹');
   };
 
@@ -53,7 +56,7 @@ export default function ChannelPage() {
         onUpload={() => setShowUpload(true)}
       />
 
-      <section className="hero" />
+      <section className="hero" style={{ height: 0 }} />
 
       {/* Filter tabs */}
       <div style={{

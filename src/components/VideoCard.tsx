@@ -4,21 +4,24 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { VideoThumb } from './VideoThumb';
 import type { Video } from '@/lib/types';
-import { toggleLike } from '@/lib/firebase/videos';
+import { toggleLike, archiveVideo, deleteVideo } from '@/lib/firebase/videos';
 import { useAuth } from './AuthProvider';
 
 interface VideoCardProps {
   video: Video;
   compact?: boolean;
   onShare?: (id: string) => void;
+  onArchive?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function VideoCard({ video, compact, onShare }: VideoCardProps) {
-  const { user } = useAuth();
+export function VideoCard({ video, compact, onShare, onArchive, onDelete }: VideoCardProps) {
+  const { user, isAdmin } = useAuth();
   const userId = user?.uid ?? 'guest';
   const [liked, setLiked] = useState(video.likedBy.includes(userId));
   const [likeCount, setLikeCount] = useState(video.likes);
   const [hover, setHover] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,6 +36,32 @@ export function VideoCard({ video, compact, onShare }: VideoCardProps) {
     e.preventDefault();
     e.stopPropagation();
     onShare?.(video.id);
+  };
+
+  const handleArchive = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await archiveVideo(video.id);
+      onArchive?.(video.id);
+      setShowMenu(false);
+    } catch (err) {
+      console.error('Failed to archive video:', err);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm('Permanently delete this video? This cannot be undone.')) {
+      try {
+        await deleteVideo(video.id, video.storageUrl);
+        onDelete?.(video.id);
+        setShowMenu(false);
+      } catch (err) {
+        console.error('Failed to delete video:', err);
+      }
+    }
   };
 
   return (
@@ -67,7 +96,7 @@ export function VideoCard({ video, compact, onShare }: VideoCardProps) {
             {video.title}
           </h3>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
             <span style={{ fontSize: 12, color: 'var(--sub)', fontWeight: 500 }}>
               {video.views} views
               {video.createdAt && (
@@ -88,6 +117,54 @@ export function VideoCard({ video, compact, onShare }: VideoCardProps) {
               <button className="icon-btn" onClick={handleShare} title="Copy link" aria-label="Copy link">
                 ↗
               </button>
+              {isAdmin && (
+                <div style={{ position: 'relative' }}>
+                  <button
+                    className="icon-btn"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
+                    title="More"
+                    aria-label="More options"
+                  >
+                    ⋮
+                  </button>
+                  {showMenu && (
+                    <div style={{
+                      position: 'absolute', right: 0, bottom: '100%', marginBottom: 4,
+                      background: 'var(--card)', border: '1px solid var(--border)',
+                      borderRadius: 8, minWidth: 160, zIndex: 50,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    }}>
+                      <button
+                        onClick={handleArchive}
+                        style={{
+                          display: 'block', width: '100%', padding: '12px 16px',
+                          textAlign: 'left', fontSize: 13, fontWeight: 500,
+                          color: 'var(--text)', background: 'transparent', border: 'none',
+                          cursor: 'pointer', transition: 'all 0.15s',
+                          borderBottom: '1px solid var(--border)',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        Archive
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        style={{
+                          display: 'block', width: '100%', padding: '12px 16px',
+                          textAlign: 'left', fontSize: 13, fontWeight: 500,
+                          color: '#ef4444', background: 'transparent', border: 'none',
+                          cursor: 'pointer', transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
