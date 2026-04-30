@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { FilterCanvas } from './FilterCanvas';
+import { FilterSelector } from './FilterSelector';
+import { getFilterById } from '@/lib/filters/filters';
 
 interface VideoRecorderProps {
   onComplete: (blob: Blob) => void;
@@ -11,6 +14,7 @@ const MAX_DURATION_S = 180; // 3 min cap to keep file sizes reasonable
 
 export function VideoRecorder({ onComplete, onCancel }: VideoRecorderProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
@@ -18,6 +22,9 @@ export function VideoRecorder({ onComplete, onCancel }: VideoRecorderProps) {
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [selectedFilterId, setSelectedFilterId] = useState<string | null>(null);
+
+  const selectedFilter = selectedFilterId ? getFilterById(selectedFilterId) : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +74,23 @@ export function VideoRecorder({ onComplete, onCancel }: VideoRecorderProps) {
 
   const startRecording = () => {
     if (!streamRef.current) return;
+
+    let recordingStream: MediaStream | null = streamRef.current;
+
+    // If filter is selected, record from canvas instead
+    if (selectedFilter && canvasRef.current) {
+      try {
+        const canvasStream = canvasRef.current.captureStream(30);
+        const audioTracks = streamRef.current.getAudioTracks();
+        audioTracks.forEach(track => {
+          canvasStream.addTrack(track);
+        });
+        recordingStream = canvasStream;
+      } catch (e) {
+        console.error('Failed to capture canvas stream:', e);
+      }
+    }
+
     const candidates = [
       'video/mp4',
       'video/webm;codecs=vp9,opus',
@@ -74,7 +98,9 @@ export function VideoRecorder({ onComplete, onCancel }: VideoRecorderProps) {
       'video/webm',
     ];
     const mime = candidates.find(c => MediaRecorder.isTypeSupported(c)) ?? '';
-    const recorder = mime ? new MediaRecorder(streamRef.current, { mimeType: mime }) : new MediaRecorder(streamRef.current);
+    const recorder = mime
+      ? new MediaRecorder(recordingStream, { mimeType: mime })
+      : new MediaRecorder(recordingStream);
     chunksRef.current = [];
     recorder.ondataavailable = e => {
       if (e.data.size > 0) chunksRef.current.push(e.data);
@@ -126,6 +152,15 @@ export function VideoRecorder({ onComplete, onCancel }: VideoRecorderProps) {
           muted
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
+
+        {selectedFilter && (
+          <FilterCanvas
+            ref={canvasRef}
+            videoRef={videoRef}
+            filter={selectedFilter}
+          />
+        )}
+
         {recording && (
           <div style={{
             position: 'absolute', top: 12, right: 12,
@@ -133,6 +168,7 @@ export function VideoRecorder({ onComplete, onCancel }: VideoRecorderProps) {
             padding: '6px 12px', borderRadius: 'var(--radius-sm)',
             fontSize: 14, fontWeight: 600,
             display: 'flex', alignItems: 'center', gap: 8,
+            zIndex: 10,
           }}>
             <span style={{
               width: 8, height: 8, background: '#FF4444', borderRadius: '50%',
@@ -152,6 +188,11 @@ export function VideoRecorder({ onComplete, onCancel }: VideoRecorderProps) {
           </div>
         )}
       </div>
+
+      <FilterSelector
+        selectedFilter={selectedFilter}
+        onSelectFilter={filter => setSelectedFilterId(filter?.id ?? null)}
+      />
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '20px 0' }}>
         <button
