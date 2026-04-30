@@ -45,34 +45,36 @@ export const FilterCanvas = forwardRef<HTMLCanvasElement, FilterCanvasProps>(
     }, []);
 
     useEffect(() => {
-      if (!canvasRef.current || !videoRef.current || !filter || !modelsReady) return;
+      if (!canvasRef.current || !videoRef?.current || !filter || !modelsReady) return;
 
       const canvas = canvasRef.current;
-      const videoElement = videoRef.current;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-
-      // Match canvas size to video
-      canvas.width = videoElement.videoWidth || 1280;
-      canvas.height = videoElement.videoHeight || 720;
 
       const startTime = Date.now();
 
       const draw = async () => {
-        if (!videoRef.current || !filter) return;
+        const video = videoRef?.current;
+        if (!video || !filter) return;
 
         try {
+          // Match canvas size to video
+          if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
+          }
+
           // Draw video frame
-          ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
           // Detect face
-          const face = await detectFace(videoRef.current);
+          const face = await detectFace(video);
 
           // Draw filter
           filter.draw({
             ctx,
             canvas,
-            videoElement: videoRef.current,
+            videoElement: video,
             timestamp: Date.now() - startTime,
             face,
           });

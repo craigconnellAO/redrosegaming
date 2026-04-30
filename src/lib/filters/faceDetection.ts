@@ -1,66 +1,93 @@
-import * as faceapi from 'face-api.js';
 import { FaceDetection } from './types';
 
-let modelsLoaded = false;
+let trackerLoaded = false;
+let tracker: any = null;
 
 export async function loadFaceModels() {
-  if (modelsLoaded) return;
+  if (trackerLoaded) return;
 
-  // Load models from CDN
-  const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/models';
+  // Dynamically load tracking.js from CDN
+  if (typeof window === 'undefined') return;
 
   try {
-    await Promise.all([
-      faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-      faceapi.nets.faceDetectionNet.loadFromUri(MODEL_URL),
-    ]);
-    modelsLoaded = true;
+    // Load the tracking library
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.9.3/tracking.min.js';
+    script.async = true;
+
+    await new Promise<void>((resolve, reject) => {
+      script.onload = () => resolve();
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    // Wait for window.tracking to be available
+    let attempts = 0;
+    while (!window.tracking && attempts < 50) {
+      await new Promise(r => setTimeout(r, 100));
+      attempts++;
+    }
+
+    if (!window.tracking) {
+      throw new Error('tracking.js failed to load');
+    }
+
+    tracker = new window.tracking.ObjectTracker('face');
+    tracker.setInitialScale(4);
+    tracker.setStepSize(2);
+    tracker.setEdgesDensity(0.1);
+
+    trackerLoaded = true;
   } catch (e) {
-    console.error('Failed to load face models from CDN:', e);
+    console.error('Failed to load face detection:', e);
     throw e;
   }
 }
 
 export async function detectFace(videoElement: HTMLVideoElement): Promise<FaceDetection | null> {
-  if (!videoElement.videoWidth || !videoElement.videoHeight) {
+  if (!videoElement.videoWidth || !videoElement.videoHeight || !tracker) {
     return null;
   }
 
   try {
-    const detections = await faceapi.detectAllFaces(videoElement).withFaceLandmarks();
+    const rects = tracker.track([videoElement]);
 
-    if (detections.length === 0) {
+    if (rects.length === 0) {
       return null;
     }
 
-    const detection = detections[0];
-    const box = detection.detection.box;
-    const landmarks = detection.landmarks;
+    const rect = rects[0];
 
-    // Get landmark points
-    const points = landmarks.positions;
+    // Normalize rect coordinates
+    const x = rect.x;
+    const y = rect.y;
+    const width = rect.width;
+    const height = rect.height;
 
-    // Map to approximate landmark groups
     return {
-      x: box.x,
-      y: box.y,
-      width: box.width,
-      height: box.height,
+      x,
+      y,
+      width,
+      height,
       landmarks: {
-        leftEye: { x: points[36].x, y: points[36].y }, // Left eye outer corner
-        rightEye: { x: points[45].x, y: points[45].y }, // Right eye outer corner
-        nose: { x: points[30].x, y: points[30].y }, // Nose tip
-        mouth: { x: points[57].x, y: points[57].y }, // Mouth center
-        leftEar: { x: box.x - 20, y: box.y + 30 }, // Extrapolated left
-        rightEar: { x: box.x + box.width + 20, y: box.y + 30 }, // Extrapolated right
-        forehead: { x: box.x + box.width / 2, y: box.y - 30 }, // Top of head
-        jawline: { x: box.x + box.width / 2, y: box.y + box.height }, // Bottom of face
+        leftEye: { x: x + width * 0.3, y: y + height * 0.35 },
+        rightEye: { x: x + width * 0.7, y: y + height * 0.35 },
+        nose: { x: x + width / 2, y: y + height * 0.5 },
+        mouth: { x: x + width / 2, y: y + height * 0.75 },
+        leftEar: { x: x - 10, y: y + height * 0.3 },
+        rightEar: { x: x + width + 10, y: y + height * 0.3 },
+        forehead: { x: x + width / 2, y: y - 20 },
+        jawline: { x: x + width / 2, y: y + height + 10 },
       },
     };
   } catch (e) {
     console.error('Face detection error:', e);
     return null;
+  }
+}
+
+declare global {
+  interface Window {
+    tracking: any;
   }
 }
