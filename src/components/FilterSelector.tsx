@@ -28,7 +28,7 @@ export function FilterSelector({ selectedFilter, onSelectFilter }: FilterSelecto
           border: selectedFilter === null ? '2px solid var(--accent)' : '1px solid var(--border)',
           background: selectedFilter === null ? 'var(--accent)' : 'var(--card)',
           color: selectedFilter === null ? '#fff' : 'var(--text)',
-          cursor: isLoading ? 'not-allowed' : 'pointer',
+          cursor: 'pointer',
           whiteSpace: 'nowrap',
           fontSize: 13,
           fontWeight: 500,
