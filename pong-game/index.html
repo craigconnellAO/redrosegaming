@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game - Red Rose Gaming</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-title">🎮 PONG 🎮</div>
+        
+        <div class="scoreboard">
+            <div class="player-score">
+                <div class="score-label">You</div>
+                <div class="score-value" id="playerScore">0</div>
+            </div>
+            
+            <div style="color: #667eea; font-size: 24px; font-weight: bold;">VS</div>
+            
+            <div class="computer-score">
+                <div class="score-label">Computer</div>
+                <div class="score-value" id="computerScore">0</div>
+            </div>
+        </div>
+        
+        <canvas id="pongCanvas" width="800" height="400"></canvas>
+        
+        <div class="status-bar" id="statusBar">
+            Press SPACE to start • Use ARROW KEYS or MOUSE to move • Press R to reset
+        </div>
+        
+        <div class="controls-info">
+            <p><strong>⬆️ ⬇️ Arrow Keys</strong> or <strong>🖱️ Mouse</strong> – Move paddle</p>
+            <p><strong>SPACE</strong> – Start/Pause</p>
+            <p><strong>R</strong> – Reset scores</p>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
